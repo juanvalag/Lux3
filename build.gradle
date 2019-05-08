@@ -1,4 +1,5 @@
 buildscript {
+
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
@@ -31,11 +32,17 @@ apply plugin:"org.grails.grails-gsp"
 
 
 repositories {
+
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
 }
 
+configurations {
+    mavenAntTasks
+}
+
 dependencies {
+    mavenAntTasks 'org.apache.maven:maven-ant-tasks:2.1.1'
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
@@ -71,6 +78,16 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-api:3.6.0"
 }
 
+task install(dependsOn:assemble) << {
+    def antBuilder = services.get(IsolatedAntBuilder)
+    antBuilder.withClasspath(configurations.mavenAntTasks).execute {
+        taskdef(resource: 'org/apache/maven/artifact/ant/antlib.xml')
+        install(file:"${buildDir}/pom.xml") {
+            pom refid:"pom"
+        }
+    }
+}
+
 bootRun {
     jvmArgs('-Dspring.output.ansi.enabled=always')
     addResources = true
@@ -92,36 +109,4 @@ assets {
     minifyCss = true
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            pom {
-                name = 'My Library'
-                description = 'A concise description of my library'
-                url = 'http://www.example.com/library'
-                properties = [
-                        myProp: "value",
-                        "prop.with.dots": "anotherValue"
-                ]
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'johnd'
-                        name = 'John Doe'
-                        email = 'john.doe@example.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://example.com/my-library.git'
-                    developerConnection = 'scm:git:ssh://example.com/my-library.git'
-                    url = 'http://example.com/my-library/'
-                }
-            }
-        }
-    }
-}
+
