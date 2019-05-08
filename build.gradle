@@ -21,6 +21,13 @@ plugins {
 version "0.1"
 group "lux"
 
+publishing {
+    publications {
+        myLibrary(MavenPublication) {
+            from components.java
+        }
+    }
+
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"war"
