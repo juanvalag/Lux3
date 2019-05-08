@@ -1,0 +1,39 @@
+.navigatorbar{
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+.navigatorbar ul{
+    
+    height:50px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #FF5252;
+}
+
+.navigatorbar li{
+    float: left;
+}
+
+.navigatorbar li a{
+    height: 100%;
+    color: whitesmoke;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navigatorbar li a:hover{
+    background-color: white;
+    color: black;
+}
+
+#contactenos {
+	float:left;
+}
+
+#copyright{
+	float:right;
+}
