@@ -1,5 +1,4 @@
 buildscript {
-
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
@@ -13,20 +12,8 @@ buildscript {
     }
 }
 
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-}
-
 version "0.1"
 group "lux"
-
-publishing {
-    publications {
-        myLibrary(MavenPublication) {
-            from components.java
-        }
-    }
 
 apply plugin:"eclipse"
 apply plugin:"idea"
@@ -37,24 +24,17 @@ apply plugin:"com.energizedwork.idea-project-components"
 apply plugin:"asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
 
-
 repositories {
-
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
 }
 
-configurations {
-    mavenAntTasks
-}
-
 dependencies {
-    mavenAntTasks 'org.apache.maven:maven-ant-tasks:2.1.1'
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-web-boot"
     compile "org.grails:grails-logging"
     compile "org.grails:grails-plugin-rest"
@@ -71,6 +51,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:5.1.5.Final"
     compile "org.grails.plugins:gsp"
     console "org.grails:grails-console"
+    compile 'com.github.jsimone:webapp-runner:8.5.11.3'
     profile "org.grails.profiles:web"
     runtime "org.glassfish.web:el-impl:2.1.2-b03"
     runtime "com.h2database:h2"
@@ -83,16 +64,6 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:3.6.0"
     testRuntime "org.seleniumhq.selenium:selenium-remote-driver:3.6.0"
     testRuntime "org.seleniumhq.selenium:selenium-api:3.6.0"
-}
-
-task install(dependsOn:assemble) << {
-    def antBuilder = services.get(IsolatedAntBuilder)
-    antBuilder.withClasspath(configurations.mavenAntTasks).execute {
-        taskdef(resource: 'org/apache/maven/artifact/ant/antlib.xml')
-        install(file:"${buildDir}/pom.xml") {
-            pom refid:"pom"
-        }
-    }
 }
 
 bootRun {
@@ -116,4 +87,18 @@ assets {
     minifyCss = true
 }
 
+task stage() {
+    dependsOn clean, war
+}
+war.mustRunAfter clean
+
+task copyToLib(type: Copy) {
+    into "$buildDir/server"
+    from(configurations.compile) {
+        include "webapp-runner*"
+    }
+}
+
+
+stage.dependsOn(copyToLib)
 
